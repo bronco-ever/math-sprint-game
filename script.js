@@ -23,6 +23,7 @@ const playAgainBtn = document.querySelector('.play-again');
 // Equations
 let questionAmount = 0;
 let equationsArray = [];
+let playerGuessArray = [];
 
 // Game Page
 let firstNumber = 0;
@@ -31,8 +32,49 @@ let equationObject = {};
 const wrongFormat = [];
 
 // Time
+let timer;
+let timePlayed = 0;
+let baseTime = 0;
+let penaltyTime = 0;
+let finalTime = 0;
+let finalTimeDisplay = '0.0s';
 
 // Scroll
+let valueY = 0;
+
+// Stop timer and process results, go to score page
+function checkTime() {
+  console.log(timePlayed);
+  if (playerGuessArray.length == questionAmount) {
+    console.log('player guess array: ', playerGuessArray);
+    clearInterval(timer);
+  }
+}
+
+function addTime() {
+  timePlayed += 0.1;
+  checkTime();
+}
+
+// Start timer when game page is clicked
+function startTimer() {
+  // Reset times
+  timePlayed = 0;
+  penaltyTime = 0;
+  finalTime = 0;
+  // Start timer, increment every 0.1s
+  timer = setInterval(addTime, 100);
+  gamePage.removeEventListener('click', startTimer);
+}
+
+// Scroll, store user selection in playerGuessArray
+function select(guessedTrue) {
+  // Scroll 80px
+  valueY += 80;
+  itemContainer.scroll(0, valueY);
+  // Add player guess to array
+  return guessedTrue ? playerGuessArray.push('true') : playerGuessArray.push('false');
+}
 
 // Get random number up to a max number
 function getRandomInt(max) {
@@ -43,10 +85,8 @@ function getRandomInt(max) {
 function createEquations() {
   // Randomly choose how many correct equations there should be
   const correctEquations = getRandomInt(questionAmount);
-  console.log('correct equations', correctEquations);
   // Set amount of wrong equations
   const wrongEquations = questionAmount - correctEquations;
-  console.log('wrong equations', wrongEquations);
   // Loop through, multiply random numbers up to 9, push to array
   for (let i = 0; i < correctEquations; i++) {
     firstNumber = getRandomInt(9) + 1;
@@ -104,7 +144,7 @@ function populateGamePage() {
   // Create Equations, Build Elements in DOM
   createEquations();
   equationsToDOM();
-  
+
   // Set Blank Space Below
   const bottomSpacer = document.createElement('div');
   bottomSpacer.classList.add('height-500');
@@ -157,7 +197,6 @@ function getRadioValue() {
 function selectQuestionAmount(e) {
   e.preventDefault();
   questionAmount = getRadioValue();
-  console.log('question amount: ', questionAmount);
   if (questionAmount) {
     showCountdown();
   } else {
@@ -178,3 +217,4 @@ startForm.addEventListener('click', () => {
 
 // Event listeners
 startForm.addEventListener('submit', selectQuestionAmount);
+gamePage.addEventListener('click', startTimer);
