@@ -42,12 +42,50 @@ let finalTimeDisplay = '0.0s';
 // Scroll
 let valueY = 0;
 
+function playAgain() {
+  gamePage.addEventListener('click', startTimer);
+  scorePage.hidden = true;
+  splashPage.hidden = false;
+  // Reset values
+  equationsArray = [];
+  playerGuessArray = [];
+  valueY = 0;
+}
+
+function showScorePage() {
+  scorePage.hidden = false;
+  gamePage.hidden = true;
+}
+
+// Scores to DOM
+function scoresToDOM() {
+  finalTimeDisplay = finalTime.toFixed(1);
+  baseTime = timePlayed.toFixed(1);
+  penaltyTime = penaltyTime.toFixed(1);
+  // Update DOM
+  baseTimeEl.textContent = `Base Time: ${baseTime}s`;
+  penaltyTimeEl.textContent = `Penalty Time: +${penaltyTime}s`;
+  finalTimeEl.textContent = `${finalTimeDisplay}s`;
+  showScorePage();
+}
+
 // Stop timer and process results, go to score page
 function checkTime() {
-  console.log(timePlayed);
   if (playerGuessArray.length == questionAmount) {
-    console.log('player guess array: ', playerGuessArray);
     clearInterval(timer);
+    // Check for wrong answers and add penalty time
+    equationsArray.forEach((equation, index) => {
+      if (equation.evaluated !== playerGuessArray[index]) {
+        penaltyTime += 0.5;
+      }
+    });
+    // Calculate times
+    baseTime = timePlayed;
+    finalTime = timePlayed + penaltyTime;
+    // Format time to 1 decimal place
+    finalTimeDisplay = finalTime.toFixed(1);
+    // Go to score page
+    scoresToDOM();
   }
 }
 
